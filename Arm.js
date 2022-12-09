@@ -17,37 +17,39 @@ class Arm
         this.timerPosition= 0;
     }
 
+    //Interesting Note. If the arm segments are not the same length, there will be some area within the radius of l1+l2 of the
+    //arm's base that it is unable to reach
     inverseKinematics()
     {
-        //x^2 + y^2 - l1^2 - l2^2
-        const term1= (this.x-this.baseX) * (this.x-this.baseX) + (this.y-this.baseY) * (this.y-this.baseY) - this.length1 * this.length1 - this.length2 * this.length2;
+        //THETA2
+        //l1^2 + l2^2 - x^2 - y^2
+        const term1= (this.length1 * this.length1) + (this.length2 * this.length2) - ((this.x-this.baseX) * (this.x-this.baseX)) - ((this.y-this.baseY) * (this.y-this.baseY));
         //2*l1*l2
         const term2= 2 * this.length1 * this.length2;
-        //(x^2 + y^2 - l1^2 - l2^2) / (2*l1*l2)
+        //(l1^2 + l2^2 - x^2 - y^2) / (2*l1*l2)
         const term3= term1 / term2;
         //cos^-1((x^2 + y^2 - l1^2 - l2^2) / (2*l1*l2))
-        this.toTheta2= Math.acos(term3);
+        const term4= Math.acos(term3);
+        //-1 * ( Pi - cos^-1( (x^2 + y^2 - l1^2 - l2^2) / (2*l1*l2) ) )
+        this.toTheta2= -1 * (Math.PI - term4);
 
-        //l2 * sin(theta2)
-        const a= this.length2 * Math.sin(this.toTheta2);
+        //THETA1
+        //l2 * sin(-1 * theta2)
+        const a= this.length2 * Math.sin(-1 * this.toTheta2);
 
-        //l1 + l2 * cos(theta2)
-        const b= this.length1 + this.length2 * Math.cos(this.toTheta2);
+        //l1 + l2 * cos(-1 * theta2)
+        const b= this.length1 + this.length2 * Math.cos(-1 * this.toTheta2);
 
-        //tan^-1(y/x) - tan^-1( (l2 * sin(theta2)) / (l1 + l2 * cos(theta2)) )
-        this.toTheta1= Math.atan((this.y-this.baseY) / (this.x-this.baseX)) - Math.atan(a / b);
+        //tan^-1(y/x) + tan^-1( (l2 * sin(-1 * theta2)) / (l1 + l2 * cos(-1 * theta2)) )
+        this.toTheta1= Math.atan((this.y-this.baseY) / (this.x-this.baseX)) + Math.atan(a / b);
 
-        //fix angles if the arm is below to the x-axis
-        const angle= this.length1 * Math.sin(this.toTheta1);
-        if (angle < 0)
-        {
-            const h= Math.sqrt(((this.x-this.baseX) * (this.x-this.baseX)) + ((this.y-this.baseY) * (this.y-this.baseY)));
-            const thetaH= Math.acos((this.x-this.baseX)/h);
-            
-            this.toTheta1= thetaH*2 + this.toTheta1 *-1;
-            this.toTheta2*= -1;
-        }
+        //fix angles if the end effector is behind to the y-axis
         
+        if (this.x-this.baseX < 0)
+        {
+            this.toTheta1-= Math.PI;
+            //this.toTheta2*= -1;
+        }
     }
 
     drawDot(ctx, x,y)
