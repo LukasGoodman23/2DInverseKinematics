@@ -8,28 +8,14 @@ canvas.addEventListener('click', startTick)
 const ResetButton = document.getElementById("clearButton");
 const PlotButton = document.getElementById("plotButton");
 
-let robot= new Arm(565.6855, 565.6855, Math.PI/4, 0, 800, 800);
-
-/*
-let length1= 565.6855;
-let length2= 565.6855;
-let theta1= Math.PI/4;
-let theta2= 0;
-*/
+let robot= new Arm(282.8427, 282.8427, Math.PI/4, 0, 800, 800, 400, 400);
 
 let timer= null;
 let timerLength= 24;
-/*
-let timerItteration= 0;
-let finalTheta1= 0;
-let finalTheta2= 0;
-*/
+
 
 function Clear(canvasName) 
 {
-   //let canvas = document.getElementById(canvasName);
-   //let ctx = canvas.getContext('2d');
-
    ctx.beginPath();
    ctx.clearRect(0,0,canvas.width, canvas.height);
    ctx.stroke();
@@ -37,8 +23,6 @@ function Clear(canvasName)
 
 function Axis(canvasName)  
 {
-   //let canvas = document.getElementById(canvasName);
-   //let ctx = canvas.getContext('2d');
    let cx = canvas.width;
    let cy = canvas.height;
 
@@ -78,6 +62,7 @@ function canvasTick()
 
 function startTick(evnt)
 {
+   console.log(evnt.offsetX);
    if(timer == null)
    {
       robot.x= evnt.offsetX; robot.y= canvas.height- evnt.offsetY;
@@ -93,7 +78,6 @@ function stopTick()
       clearInterval(timer);
       timer= null;
       robot.timerPosition= 0;
-      console.log('done');
    }
 }
 
